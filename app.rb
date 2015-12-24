@@ -3,8 +3,13 @@ require "cgi"
 require 'json'
 require 'tex2png'
 
+
+def upload(path)
+          `curl -F file=@#{path} -F token=xoxp-xxxxxxx-xxxxxxx https://slack.com/api/files.upload`
+end
+
 get '/' do
-    "Yolo2\n"
+    "Yolo\n"
 end
 
 post '/' do
@@ -13,6 +18,7 @@ post '/' do
     puts data['text']
     message = data['text'][0]
     converter = Tex2png::Converter.new(message)
-    result = converter.data
-    {:text => "Ton texte de merde: *#{result}*, pour l'instant j'en fait rien mais à 5000 RT on y pense"}.to_json
+    result = upload(converter.png.path)
+    result = JSON.parse(result)['file']['url']
+    {:text => "#{result}"}.to_json
 end
